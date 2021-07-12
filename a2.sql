@@ -9,20 +9,16 @@ SET search_path TO A2;
 --***Comment**
 -- Will still probably have to obtain the first row which will contain the largest number
 Create view instructorWithoutPhd as
-(select dname, count(iid)
-From instructor Join department on instructor.dcode = department.dcode
-)
-Except
-(select dname, count(iid)
-FROM instructor JOIN department on instructor.dcode = department.dcode
-Where idegree = 'PhD'
-)
+select count(idegree) as numNoPhD, dcode
+from instructor, department
+where department.dcode=instructor.dcode and instructor.idegree <> 'PhD'
+group by dcode
 
 --Does this select the largest number of iid?
 INSERT INTO query1
 (Select dname
 From instructorWithoutPhd
-Where iid = max(iid)
+Where numNoPhD = max(numNoPhD)
 )
 
 --Query 2
