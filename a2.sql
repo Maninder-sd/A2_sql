@@ -9,25 +9,24 @@ SET search_path TO A2;
 --***Comment**
 -- Will still probably have to obtain the first row which will contain the largest number
 Create view instructorWithoutPhd as
-select count(idegree) as numNoPhD, dcode
+select count(idegree) as numNoPhD, dname
 from instructor, department
 where department.dcode=instructor.dcode and instructor.idegree <> 'PhD'
-group by dcode
+group by dname
 
 --Does this select the largest number of iid?
 INSERT INTO query1
 (Select dname
 From instructorWithoutPhd
-Where numNoPhD = max(numNoPhD)
-)
+Where numNoPhD = (SELECT max(numNoPhD) from instructorWithoutPhd)
+);
 
 --Query 2
 INSERT INTO query2
-
-Create view femaleFourthyear as
-Select count(sid) as num
-From student
-where sex = 'F' and yearofstudy = 4 and dcode = 'CSC'
+(Select count(sid) as num
+From student, department
+where student.dcode=department.dcode and sex = 'F' and yearofstudy = 4 and dname = 'Computer Science'
+);
 
 --Query 3
 -- need to take the first row or largest somehow 
@@ -40,17 +39,67 @@ Group by year)
 INSERT INTO query3
 (Select year, enrollment
 From yearEnrollment
-Where enrollment = max(enrollment))
+Where enrollment = (select max(enrollment) from yearEnrollment )
+)
 
 --Query 4
 INSERT INTO query4
-Select Distinct cname
-From course Join courseSection on course.cid = courseSection.cid
-Where  course.dcode = courseSection.dcode ='CSC' and  semester = 5
+
+(Select Distinct cname
+From course, courseSection, department
+Where 
+course.cid = courseSection.cid and 
+course.dcode = courseSection.dcode and 
+course.dcode = department.dcode and
+course.dcode = 'CSC' and  semester = 5)
+
+EXCEPT
+
+(Select Distinct cname
+From course, courseSection, department
+Where 
+course.cid = courseSection.cid and 
+course.dcode = courseSection.dcode and 
+course.dcode = department.dcode and
+course.dcode = 'CSC' and  semester <> 5)
 
 
 --Query 5
+
+Create view agvGrades as (
+select department.dname as dept, sid, sfirstname,slastname, avg(grade) as avgGrade
+from student, studentCourse, department, courseSection
+where student.sid=studentCourse.sid and student.dcode=department.dcode and 
+studentCourse.cid=courseSection.cid and 
+(courseSection.year <> (select max(year) from courseSection )) or  
+courseSection.semester <> (select max(semester) from courseSection))
+group by department.dname, sid, sfirstname,slastname
+);
+
 INSERT INTO query5
+(
+(Select dept, sid, sfirstname,slastname, avgGrade
+From agvGrades
+Where avgGrade = (select max(avgGrade) from agvGrades )
+
+
+
+);
+
+
+
+select *
+from student, took, offering
+where student.sid=took.sid and took.oid=offering.oid and
+offering.term <> (select max(term) from offering)
+
+select *
+from offering
+where 
+( offering.term <> (select min(term) from offering) or cnum <> (select min(cnum) from offering) )
+
+
+
 
 
 
