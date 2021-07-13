@@ -47,7 +47,7 @@ INSERT INTO query3(
 	Select year, enrollment
 	From yearEnrollment
 	Where enrollment = (select max(enrollment) from yearEnrollment )
-);
+)
 
 
 --Query 4

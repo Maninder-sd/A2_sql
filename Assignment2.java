@@ -90,11 +90,13 @@ public class Assignment2 {
 	public boolean insertStudent(int sid, String lastName, String firstName, String sex, int age, String dcode,
 			int yearOfStudy) {
 		String SQL = "Select dcode From department Where dcode = ? ";
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
 		try {
 
-			PreparedStatement pstmt = connection.prepareStatement(SQL);
+			pstmt = connection.prepareStatement(SQL);
 			pstmt.setString(1, dcode);
-			ResultSet rs = pstmt.executeQuery();
+			rs = pstmt.executeQuery();
 			// Check if department exists, if so
 			// then we proceed to insert
 			if (rs.next()) {
@@ -109,14 +111,70 @@ public class Assignment2 {
 					pstmt.setString(6, dcode);
 					pstmt.setInt(7, yearOfStudy);
 					if (pstmt.executeUpdate() > 0) {
+						try {
+							if (rs != null) {
+								rs.close();
+							}
+						} catch (Exception e) {
+							// TODO: handle exception
+						}
+						try {
+							if (pstmt != null) {
+								pstmt.close();
+							}
+						} catch (Exception e) {
+							// TODO: handle exception
+						}
 						return true;
 					} else {
+						try {
+							if (rs != null) {
+								rs.close();
+							}
+						} catch (Exception e) {
+							// TODO: handle exception
+						}
+						try {
+							if (pstmt != null) {
+								pstmt.close();
+							}
+						} catch (Exception e) {
+							// TODO: handle exception
+						}
 						return false;
 					}
 				} else {
+					try {
+						if (rs != null) {
+							rs.close();
+						}
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+					try {
+						if (pstmt != null) {
+							pstmt.close();
+						}
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
 					return false;
 				}
 			} else {
+				try {
+					if (rs != null) {
+						rs.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				try {
+					if (pstmt != null) {
+						pstmt.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
 				return false;
 			}
 
@@ -131,18 +189,49 @@ public class Assignment2 {
 	 */
 	public int getStudentsCount(String dname) {
 		String SQL = "Select dcode From department Where dcode = ? ";
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
 		try {
-			PreparedStatement pstmt = connection.prepareStatement(SQL);
+			pstmt = connection.prepareStatement(SQL);
 			pstmt.setString(1, dname);
-			ResultSet rs = pstmt.executeQuery();
+			rs = pstmt.executeQuery();
 			if (rs.next()) {
-				SQL = "Select count(sid) as number_student From department JOIN student on department.dcode = student.dcode Where dname = ?";
+				SQL = "Select count(sid) as number_of_student From department JOIN student on department.dcode = student.dcode Where dname = ?";
 				pstmt = connection.prepareStatement(SQL);
 				pstmt.setString(1, dname);
 				rs = pstmt.executeQuery();
 				if (rs.next()) {
-					return rs.getInt("number_student");
+					int result = rs.getInt("number_of_student");
+					try {
+						if (rs != null) {
+							rs.close();
+						}
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+					try {
+						if (pstmt != null) {
+							pstmt.close();
+						}
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+					return result;
 				}
+			}
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+			try {
+				if (pstmt != null) {
+					pstmt.close();
+				}
+			} catch (Exception e) {
+				// TODO: handle exception
 			}
 
 		} catch (Exception e) {
@@ -159,16 +248,46 @@ public class Assignment2 {
 	 */
 	public String getStudentInfo(int sid) {
 		String SQL = "Select * From student Where sid = ?";
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
 		try {
-			PreparedStatement pstmt = connection.prepareStatement(SQL);
+			pstmt = connection.prepareStatement(SQL);
 			pstmt.setInt(1, sid);
-			ResultSet rs = pstmt.executeQuery();
+			rs = pstmt.executeQuery();
 			if (rs.next()) {
 				String result = "";
 				result = rs.getString("sfirstname ") + ":" + rs.getString("slastName") + ":" + rs.getString("sex") + ":"
 						+ rs.getInt("age") + ":" + rs.getInt("yearofstudy") + ":" + rs.getString("dcode");
+				try {
+					if (rs != null) {
+						rs.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				try {
+					if (pstmt != null) {
+						pstmt.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
 
 				return result;
+			}
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+			try {
+				if (pstmt != null) {
+					pstmt.close();
+				}
+			} catch (Exception e) {
+				// TODO: handle exception
 			}
 
 		} catch (Exception e) {
@@ -182,7 +301,37 @@ public class Assignment2 {
 	 * otherwise.
 	 */
 	public boolean chgDept(String dcode, String newName) {
-		throw new RuntimeException("Function Not Implemented");
+		String SQL = "UPDATE department Set dname = ? Where dcode = ?";
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = connection.prepareStatement(SQL);
+			pstmt.setString(1, newName);
+			pstmt.setString(2, dcode);
+			int result = pstmt.executeUpdate();
+			if (result > 0) {
+				try {
+					if (pstmt != null) {
+						pstmt.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				return true;
+			} else {
+				try {
+					if (pstmt != null) {
+						pstmt.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				return false;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+
 	}
 
 	/*
@@ -190,7 +339,36 @@ public class Assignment2 {
 	 * otherwise.
 	 */
 	public boolean deleteDept(String dcode) {
-		throw new RuntimeException("Function Not Implemented");
+		String SQL = "DELETE FROM department Where dcode = ?";
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = connection.prepareStatement(SQL);
+			pstmt.setString(1, dcode);
+			int result = pstmt.executeUpdate();
+			if (result > 0) {
+				try {
+					if (pstmt != null) {
+						pstmt.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+
+				return true;
+			} else {
+				try {
+					if (pstmt != null) {
+						pstmt.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				return false;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	/*
@@ -203,7 +381,63 @@ public class Assignment2 {
 	 * Returns an empty string "" if the student does not exist.
 	 */
 	public String listCourses(int sid) {
-		throw new RuntimeException("Function Not Implemented");
+		String SQL = "SELECT sid FROM student Where sid = ?";
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String result = "";
+		try {
+			pstmt = connection.prepareStatement(SQL);
+			pstmt.setInt(1, sid);
+			rs = pstmt.executeQuery();
+			// we know we found sid
+			if (rs.next()) {
+				SQL = "SELECT cname, dcode, semester, year, grade FROM studentCourse JOIN courseSection on studentCourse.csid = courseSection.csid JOIN course on course.cid = courseSection.csid Where sid = ?";
+				pstmt = connection.prepareStatement(SQL);
+				pstmt.setInt(1, sid);
+				rs = pstmt.executeQuery();
+				while (rs.next()) {
+					result = result + rs.getString("cname") + ":" + rs.getString("dcode") + ":" + rs.getInt("semester")
+							+ ":" + rs.getInt("year") + ":" + rs.getInt("grade") + "\n";
+				}
+
+				try {
+					if (rs != null) {
+						rs.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				try {
+					if (pstmt != null) {
+						pstmt.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				return result.substring(0, result.length() - 2);
+
+			} else {
+				try {
+					if (rs != null) {
+						rs.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				try {
+					if (pstmt != null) {
+						pstmt.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+
+				return "";
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "";
+		}
 	}
 
 	/*
@@ -212,7 +446,68 @@ public class Assignment2 {
 	 * false otherwise. Do not not allow grades to go over 100%.
 	 */
 	public boolean updateGrades(int csid) {
-		throw new RuntimeException("Function Not Implemented");
+		String SQL = "Select sid, grade From studentCourse Where csid = ?";
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		int results = 0;
+		try {
+			pstmt = connection.prepareStatement(SQL);
+			pstmt.setInt(1, csid);
+			rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				SQL = "UPDATE studentCourse SET grade = ? Where sid = ? and csid = ?";
+				int sid = rs.getInt("sid");
+				int grade = (int) (rs.getInt("grade") * 1.1);
+				if (grade > 100) {
+					grade = 100;
+				}
+				pstmt = connection.prepareStatement(SQL);
+				pstmt.setInt(1, grade);
+				pstmt.setInt(2, sid);
+				pstmt.setInt(3, csid);
+				results = results + pstmt.executeUpdate();
+			}
+
+			if (results > 0) {
+				try {
+					if (rs != null) {
+						rs.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				try {
+					if (pstmt != null) {
+						pstmt.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				return true;
+
+			} else {
+				try {
+					if (rs != null) {
+						rs.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				try {
+					if (pstmt != null) {
+						pstmt.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				return false;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	/*
@@ -226,6 +521,55 @@ public class Assignment2 {
 	 * if the database was successfully created, false otherwise.
 	 */
 	public boolean updateDB() {
-		throw new RuntimeException("Function Not Implemented");
+		String SQL = "CREATE TABLE femaleStudents (sid INTEGER, fname CHAR (20),lname CHAR (20))";
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		int insertResults = 0;
+		try {
+			pstmt = connection.prepareStatement(SQL);
+			int result = pstmt.executeUpdate();
+			if (result > 0) {
+				SQL = "SELECT sid, sfirstname, slastname FROM student JOIN department on student.dcode = department.dcode Where sex = 'F'";
+				pstmt = connection.prepareStatement(SQL);
+				rs = pstmt.executeQuery();
+
+				while (rs.next()) {
+					SQL = "INSERT INTO femaleStudents VALUES (?,?,?)";
+					pstmt = connection.prepareStatement(SQL);
+					pstmt.setInt(1, rs.getInt("sid"));
+					pstmt.setString(2, rs.getString("sfirstname"));
+					pstmt.setString(3, rs.getString("slastname"));
+				}
+
+				try {
+					if (rs != null) {
+						rs.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				try {
+					if (pstmt != null) {
+						pstmt.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				return true;
+			} else {
+				try {
+					if (pstmt != null) {
+						pstmt.close();
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				return false;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			return false;
+		}
 	}
 }
